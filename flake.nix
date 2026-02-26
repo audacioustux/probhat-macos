@@ -1,7 +1,7 @@
 {
   description = "Probhat Bengali keyboard layout for macOS";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-stable";
 
   outputs = { self, nixpkgs }:
     let
