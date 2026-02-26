@@ -35,20 +35,27 @@
           dst = "/Library/Keyboard Layouts";
           pkg = mkProbhat pkgs;
           src = "${pkg}/Library/Keyboard Layouts";
-          files = [ "Probhat.keylayout" "Probhat.icns" ];
         in {
           options.programs.probhat.enable =
             lib.mkEnableOption "Probhat Bengali keyboard layout";
 
-          config.system.activationScripts.probhat.text =
-            if config.programs.probhat.enable then ''
-              echo "Installing Probhat keyboard layout..." >&2
-              install -m 644 "${src}/Probhat.keylayout" "${src}/Probhat.icns" "${dst}/"
-            ''
-            else ''
-              echo "Removing Probhat keyboard layout..." >&2
-              ${lib.concatMapStringsSep "\n" (f: "rm -f '${dst}/${f}'") files}
-            '';
+          config = lib.mkMerge [
+            (lib.mkIf config.programs.probhat.enable {
+              system.activationScripts.postActivation.text = ''
+                echo "Installing Probhat keyboard layout..." >&2
+                mkdir -p "${dst}"
+                install -m 644 "${src}/Probhat.keylayout" "${dst}/Probhat.keylayout"
+                install -m 644 "${src}/Probhat.icns" "${dst}/Probhat.icns"
+              '';
+            })
+            (lib.mkIf (!config.programs.probhat.enable) {
+              system.activationScripts.postActivation.text = ''
+                echo "Removing Probhat keyboard layout..." >&2
+                rm -f "${dst}/Probhat.keylayout"
+                rm -f "${dst}/Probhat.icns"
+              '';
+            })
+          ];
         };
     };
 }
